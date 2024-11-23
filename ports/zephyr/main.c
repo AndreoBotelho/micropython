@@ -89,6 +89,7 @@ void init_zephyr(void) {
     #endif
 }
 
+
 #if MICROPY_VFS
 static void vfs_init(void) {
     mp_obj_t bdev = NULL;
