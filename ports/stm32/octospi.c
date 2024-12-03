@@ -43,26 +43,36 @@
 #define MICROPY_HW_OSPI_CS_HIGH_CYCLES (2) // nCS stays high for 2 cycles
 #endif
 
+
+#if (MICROPY_HW_OSPIFLASH_SIZE_BITS_LOG2 - 3 - 1) >= 24
+#define OSPI_QCMD 0xec
+#define OSPI_DCMD 0xbc
+#define OSPI_CMD 0x13
+#define OSPI_WCMD 0x12
+#define OSPI_ADSIZE 3
+#else
+#define OSPI_QCMD 0xeb
+#define OSPI_DCMD 0xbb
+#define OSPI_CMD 0x03
+#define OSPI_WCMD 0x02
+#define OSPI_ADSIZE 2
+#endif
+
 void octospi_init(void) {
     // Configure OCTOSPI pins (allows 1, 2, 4 or 8 line configuration).
-    #if defined(STM32H7)
-    #define STATIC_AF_OCTOSPI(signal) STATIC_AF_OCTOSPIM_P1_##signal
-    #else
-    #define STATIC_AF_OCTOSPI(signal) STATIC_AF_OCTOSPI1_##signal
-    #endif
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_CS, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(NCS));
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_SCK, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(CLK));
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO0, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO0));
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_CS, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_NCS);
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_SCK, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_CLK);
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO0, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO0);
     #if defined(MICROPY_HW_OSPIFLASH_IO1)
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO1, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO1));
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO1, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO1);
     #if defined(MICROPY_HW_OSPIFLASH_IO2)
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO2, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO2));
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO3, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO3));
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO2, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO2);
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO3, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO3);
     #if defined(MICROPY_HW_OSPIFLASH_IO4)
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO4, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO4));
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO5, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO5));
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO6, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO6));
-    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO7, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI(IO7));
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO4, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO4);
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO5, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO5);
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO6, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO6);
+    mp_hal_pin_config_alt_static_speed(MICROPY_HW_OSPIFLASH_IO7, MP_HAL_PIN_MODE_ALT, MP_HAL_PIN_PULL_NONE, MP_HAL_PIN_SPEED_VERY_HIGH, STATIC_AF_OCTOSPI1_IO7);
     #endif
     #endif
     #endif
@@ -71,6 +81,7 @@ void octospi_init(void) {
     __HAL_RCC_OSPI1_CLK_ENABLE();
     __HAL_RCC_OSPI1_FORCE_RESET();
     __HAL_RCC_OSPI1_RELEASE_RESET();
+
 
     // Configure the OCTOSPI peripheral.
 
@@ -105,6 +116,77 @@ void octospi_init(void) {
     OCTOSPI1->CR |= OCTOSPI_CR_EN;
 }
 
+void ospi_memory_map(void) {
+
+    // Enable memory-mapped mode
+
+    #if defined(MICROPY_HW_OSPIFLASH_IO1) && !defined(MICROPY_HW_OSPIFLASH_IO2) && !defined(MICROPY_HW_OSPIFLASH_IO4)
+
+    // Use 2-line address, 2-line data.
+
+    uint32_t dmode = 2; // data on 4-lines
+    uint32_t admode = 2; // address on 4-lines
+    uint32_t dcyc = 4; // 4 dummy cycles    
+    uint32_t ab = 0; // no alternate byte
+    uint32_t cmd = OSPI_DCMD;
+
+    #elif defined(MICROPY_HW_OSPIFLASH_IO2) && !defined(MICROPY_HW_OSPIFLASH_IO4)
+
+    // Use 4-line address, 4-line data.
+
+    uint32_t dmode = 3; // data on 4-lines
+    uint32_t admode = 3; // address on 4-lines
+    uint32_t dcyc = 4; // 4 dummy cycles
+    uint32_t ab = 3; // alternate byte 4 lines
+    uint32_t cmd = OSPI_QCMD;
+
+    #else
+
+    // Fallback to use 1-line address, 1-line data.
+
+    uint32_t dmode = 1; // data on 1-line
+    uint32_t admode = 1; // address on 1-line
+    uint32_t dcyc = 0; // 0 dummy cycles
+    uint32_t ab = 0; // no alternate byte
+    uint32_t cmd = OSPI_CMD;
+    
+    #endif
+
+    OCTOSPI1->FCR = OCTOSPI_FCR_CTCF; // clear TC flag
+    
+    OCTOSPI1->ABR = 0; // disable alternate read mode    
+    OCTOSPI1->WABR = 0; // disable alternate write mode
+
+    OCTOSPI1->CR = (OCTOSPI1->CR & ~OCTOSPI_CR_FMODE_Msk) | 3 << OCTOSPI_CR_FMODE_Pos; // memory map mode
+    
+    OCTOSPI1->CCR =
+        0 << OCTOSPI_CCR_DDTR_Pos // DD mode disabled
+            | 0 << OCTOSPI_CCR_SIOO_Pos // send instruction every transaction
+            | dmode << OCTOSPI_CCR_DMODE_Pos // data on n lines
+            | 0 << OCTOSPI_CCR_ABSIZE_Pos // 8-bit alternate byte
+            | ab << OCTOSPI_CCR_ABMODE_Pos // no alternate byte
+            | OSPI_ADSIZE << OCTOSPI_CCR_ADSIZE_Pos // 32 or 24-bit address size
+            | admode << OCTOSPI_CCR_ADMODE_Pos // address on n lines
+            | 1 << OCTOSPI_CCR_IMODE_Pos // instruction on 1 line
+    ;
+    OCTOSPI1->TCR = dcyc << OCTOSPI_TCR_DCYC_Pos; // n dummy cycles
+    OCTOSPI1->IR = cmd << OCTOSPI_IR_INSTRUCTION_Pos; // quad read opcode
+        
+    OCTOSPI1->WCCR =
+        0 << OCTOSPI_CCR_DDTR_Pos // DD mode disabled
+            | 0 << OCTOSPI_CCR_SIOO_Pos // send instruction every transaction
+            | 1 << OCTOSPI_CCR_DMODE_Pos // data on 1 lines
+            | 0 << OCTOSPI_CCR_ABSIZE_Pos // 8-bit alternate byte
+            | 0 << OCTOSPI_CCR_ABMODE_Pos // no alternate byte
+            | OSPI_ADSIZE << OCTOSPI_CCR_ADSIZE_Pos // 32 or 24-bit address size
+            | 1 << OCTOSPI_CCR_ADMODE_Pos // address on 1 lines
+            | 1 << OCTOSPI_CCR_IMODE_Pos // instruction on 1 line
+    ;
+    OCTOSPI1->WTCR = 0 << OCTOSPI_TCR_DCYC_Pos; // n dummy cycles
+    
+    OCTOSPI1->WIR = OSPI_WCMD << OCTOSPI_IR_INSTRUCTION_Pos; // quad read opcode
+}
+
 static int octospi_ioctl(void *self_in, uint32_t cmd) {
     (void)self_in;
     switch (cmd) {
@@ -120,6 +202,8 @@ static int octospi_ioctl(void *self_in, uint32_t cmd) {
             }
             break;
         case MP_QSPI_IOCTL_BUS_RELEASE:
+           // Switch to memory-map mode when bus is idle
+            ospi_memory_map();
             break;
     }
     return 0; // success
@@ -290,14 +374,26 @@ static int octospi_read_cmd_qaddr_qdata(void *self_in, uint8_t cmd, uint32_t add
     // Use 2-line address, 2-line data.
 
     uint32_t adsize = MICROPY_HW_SPI_ADDR_IS_32BIT(addr) ? 3 : 2;
-    uint32_t dmode = 2; // data on 2-lines
-    uint32_t admode = 2; // address on 2-lines
-    uint32_t dcyc = 4; // 4 dummy cycles
-
+    uint32_t dmode = 2; // data on 4-lines
+    uint32_t admode = 2; // address on 4-lines
+    uint32_t dcyc = 4; // 4 dummy cycles    
+    uint32_t ab = 0; // no alternate byte
+    
+    
     if (cmd == 0xeb || cmd == 0xec) {
-        // Convert to 2-line command.
+        // Convert to 1-line command.
         cmd = MICROPY_HW_SPI_ADDR_IS_32BIT(addr) ? 0xbc : 0xbb;
     }
+
+    #elif defined(MICROPY_HW_OSPIFLASH_IO2) && !defined(MICROPY_HW_OSPIFLASH_IO4)
+
+    // Use 4-line address, 4-line data.
+
+    uint32_t adsize = MICROPY_HW_SPI_ADDR_IS_32BIT(addr) ? 3 : 2;
+    uint32_t dmode = 3; // data on 4-lines
+    uint32_t admode = 3; // address on 4-lines
+    uint32_t dcyc = 4; // 4 dummy cycles
+    uint32_t ab = 3; // alternate byte 4 lines
 
     #else
 
@@ -307,6 +403,7 @@ static int octospi_read_cmd_qaddr_qdata(void *self_in, uint8_t cmd, uint32_t add
     uint32_t dmode = 1; // data on 1-line
     uint32_t admode = 1; // address on 1-line
     uint32_t dcyc = 0; // 0 dummy cycles
+    uint32_t ab = 0; // alternate byte 4 lines
 
     if (cmd == 0xeb || cmd == 0xec) {
         // Convert to 1-line command.
@@ -324,13 +421,14 @@ static int octospi_read_cmd_qaddr_qdata(void *self_in, uint8_t cmd, uint32_t add
             | 0 << OCTOSPI_CCR_SIOO_Pos // send instruction every transaction
             | dmode << OCTOSPI_CCR_DMODE_Pos // data on n lines
             | 0 << OCTOSPI_CCR_ABSIZE_Pos // 8-bit alternate byte
-            | 0 << OCTOSPI_CCR_ABMODE_Pos // no alternate byte
+            | ab << OCTOSPI_CCR_ABMODE_Pos // no alternate byte
             | adsize << OCTOSPI_CCR_ADSIZE_Pos // 32 or 24-bit address size
             | admode << OCTOSPI_CCR_ADMODE_Pos // address on n lines
             | 1 << OCTOSPI_CCR_IMODE_Pos // instruction on 1 line
     ;
     OCTOSPI1->TCR = dcyc << OCTOSPI_TCR_DCYC_Pos; // n dummy cycles
     OCTOSPI1->IR = cmd << OCTOSPI_IR_INSTRUCTION_Pos; // quad read opcode
+    OCTOSPI1->ABR = 0; // disable alternate read mode    
 
     // This triggers the start of the operation.
     OCTOSPI1->AR = addr; // address to read from
