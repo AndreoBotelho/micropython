@@ -351,8 +351,8 @@ void extint_register_pin(const machine_pin_obj_t *pin, uint32_t mode, bool hard_
         #endif
         #if defined(STM32G0) || defined(STM32H5)
         EXTI->EXTICR[line >> 2] =
-            (EXTI->EXTICR[line >> 2] & ~(0x0f << (4 * (line & 0x03))))
-            | ((uint32_t)(GPIO_GET_INDEX(pin->gpio)) << (4 * (line & 0x03)));
+            (EXTI->EXTICR[line >> 2] & ~(0x0f << (8 * (line & 0x03))))
+            | ((uint32_t)(GPIO_GET_INDEX(pin->gpio)) << (8 * (line & 0x03)));
         #else
         SYSCFG->EXTICR[line >> 2] =
             (SYSCFG->EXTICR[line >> 2] & ~(0x0f << (4 * (line & 0x03))))
@@ -394,8 +394,8 @@ void extint_set(const machine_pin_obj_t *pin, uint32_t mode) {
         #endif
         #if defined(STM32G0) || defined(STM32H5)
         EXTI->EXTICR[line >> 2] =
-            (EXTI->EXTICR[line >> 2] & ~(0x0f << (4 * (line & 0x03))))
-            | ((uint32_t)(GPIO_GET_INDEX(pin->gpio)) << (4 * (line & 0x03)));
+            (EXTI->EXTICR[line >> 2] & ~(0x0f << (8 * (line & 0x03))))
+            | ((uint32_t)(GPIO_GET_INDEX(pin->gpio)) << (8 * (line & 0x03)));
         #else
         SYSCFG->EXTICR[line >> 2] =
             (SYSCFG->EXTICR[line >> 2] & ~(0x0f << (4 * (line & 0x03))))
