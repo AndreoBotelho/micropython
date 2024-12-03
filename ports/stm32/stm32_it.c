@@ -487,6 +487,75 @@ void EXTI4_IRQHandler(void) {
     IRQ_EXIT(EXTI4_IRQn);
 }
 
+#if defined(STM32H5)
+
+void EXTI5_IRQHandler(void) {
+    IRQ_ENTER(EXTI5_IRQn);
+    Handle_EXTI_Irq(5);
+    IRQ_EXIT(EXTI5_IRQn);
+}
+
+void EXTI6_IRQHandler(void) {
+    IRQ_ENTER(EXTI6_IRQn);
+    Handle_EXTI_Irq(6);
+    IRQ_EXIT(EXTI6_IRQn);
+}
+
+void EXTI7_IRQHandler(void) {
+    IRQ_ENTER(EXTI7_IRQn);
+    Handle_EXTI_Irq(7);
+    IRQ_EXIT(EXTI7_IRQn);
+}
+
+void EXTI8_IRQHandler(void) {
+    IRQ_ENTER(EXTI8_IRQn);
+    Handle_EXTI_Irq(8);
+    IRQ_EXIT(EXTI8_IRQn);
+}
+
+void EXTI9_IRQHandler(void) {
+    IRQ_ENTER(EXTI9_IRQn);
+    Handle_EXTI_Irq(9);
+    IRQ_EXIT(EXTI9_IRQn);
+}
+
+void EXTI10_IRQHandler(void) {
+    IRQ_ENTER(EXTI10_IRQn);
+    Handle_EXTI_Irq(10);
+    IRQ_EXIT(EXTI10_IRQn);
+}
+
+void EXTI11_IRQHandler(void) {
+    IRQ_ENTER(EXTI11_IRQn);
+    Handle_EXTI_Irq(11);
+    IRQ_EXIT(EXTI11_IRQn);
+}
+
+void EXTI12_IRQHandler(void) {
+    IRQ_ENTER(EXTI12_IRQn);
+    Handle_EXTI_Irq(12);
+    IRQ_EXIT(EXTI12_IRQn);
+}
+
+void EXTI13_IRQHandler(void) {
+    IRQ_ENTER(EXTI13_IRQn);
+    Handle_EXTI_Irq(13);
+    IRQ_EXIT(EXTI13_IRQn);
+}
+
+void EXTI14_IRQHandler(void) {
+    IRQ_ENTER(EXTI14_IRQn);
+    Handle_EXTI_Irq(14);
+    IRQ_EXIT(EXTI14_IRQn);
+}
+
+void EXTI15_IRQHandler(void) {
+    IRQ_ENTER(EXTI15_IRQn);
+    Handle_EXTI_Irq(15);
+    IRQ_EXIT(EXTI15_IRQn);
+}
+#endif
+
 void EXTI9_5_IRQHandler(void) {
     IRQ_ENTER(EXTI9_5_IRQn);
     Handle_EXTI_Irq(5);
