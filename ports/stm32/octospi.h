@@ -29,5 +29,9 @@
 #include "drivers/bus/qspi.h"
 
 extern const mp_qspi_proto_t octospi_proto;
+extern const mp_qspi_proto_t qspi_proto;
+
+void octospi_init(void);
+void ospi_memory_map(void);
 
 #endif // MICROPY_INCLUDED_STM32_OCTOSPI_H
