@@ -38,6 +38,7 @@
 
 #include "modmachine.h"
 #include "machine_rtc.h"
+#include "modesp32.h"
 
 #if MICROPY_HW_ENABLE_SDCARD
 #define MICROPY_PY_MACHINE_SDCARD_ENTRY { MP_ROM_QSTR(MP_QSTR_SDCard), MP_ROM_PTR(&machine_sdcard_type) },
@@ -138,6 +139,22 @@ static void machine_sleep_helper(wake_type_t wake_type, size_t n_args, const mp_
     if (machine_rtc_config.ext0_pin != -1 && (machine_rtc_config.ext0_wake_types & wake_type)) {
         esp_sleep_enable_ext0_wakeup(machine_rtc_config.ext0_pin, machine_rtc_config.ext0_level ? 1 : 0);
     }
+    #else
+    if (machine_rtc_config.ext0_pin != -1){
+        if (wake_type == MACHINE_WAKE_DEEPSLEEP) {
+          uint64_t bitmask = (1ll << machine_rtc_config.ext0_pin);
+          if (esp_deep_sleep_enable_gpio_wakeup(bitmask,machine_rtc_config.ext0_level ? ESP_GPIO_WAKEUP_GPIO_HIGH : ESP_GPIO_WAKEUP_GPIO_LOW) != ESP_OK) {
+              mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("deep_gpio_wakeup_enable() failed"));
+          }
+        }else if (wake_type == MACHINE_WAKE_SLEEP ){
+            if (gpio_wakeup_enable(machine_rtc_config.ext0_pin, machine_rtc_config.ext0_level ? GPIO_INTR_HIGH_LEVEL: GPIO_INTR_LOW_LEVEL) != ESP_OK) {
+                 mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("gpio_wakeup_enable() failed"));
+            }
+            if (esp_sleep_enable_gpio_wakeup() != ESP_OK) {
+                  mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("esp_sleep_enable_gpio_wakeup() failed"));
+            }
+        }
+    }
     #endif
 
     #if SOC_PM_SUPPORT_EXT1_WAKEUP
@@ -145,6 +162,25 @@ static void machine_sleep_helper(wake_type_t wake_type, size_t n_args, const mp_
         esp_sleep_enable_ext1_wakeup(
             machine_rtc_config.ext1_pins,
             machine_rtc_config.ext1_level ? ESP_EXT1_WAKEUP_ANY_HIGH : ESP_EXT1_WAKEUP_ALL_LOW);
+    }
+    #else
+    if (machine_rtc_config.ext1_pins != 0){
+        if (wake_type == MACHINE_WAKE_DEEPSLEEP) {
+          if (esp_deep_sleep_enable_gpio_wakeup(machine_rtc_config.ext1_pins,machine_rtc_config.ext1_level ? ESP_GPIO_WAKEUP_GPIO_HIGH : ESP_GPIO_WAKEUP_GPIO_LOW) != ESP_OK) {
+              mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("deep_ext1_gpio_wakeup_enable() failed"));
+          }
+        }else if (wake_type == MACHINE_WAKE_SLEEP){
+            for(int pin=0; pin <= RTC_LAST_EXT_PIN; pin++){
+              if(machine_rtc_config.ext1_pins & (1ll << pin)){
+                if (gpio_wakeup_enable(pin, machine_rtc_config.ext1_level ? GPIO_INTR_HIGH_LEVEL: GPIO_INTR_LOW_LEVEL) != ESP_OK) {
+                     mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("gpio_ext1_wakeup_enable() failed"));
+                }
+              }
+            }
+            if (esp_sleep_enable_gpio_wakeup() != ESP_OK) {
+                  mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("esp_sleep_enable_gpio_ext1_wakeup() failed"));
+            }
+        }
     }
     #endif
 
